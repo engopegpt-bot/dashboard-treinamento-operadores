@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Treinamento de Operadores - Dashboard</title>
+<style>
+  :root{
+    color-scheme:dark;
+    --bg:#07111f;--bg2:#0a1728;--panel:#0e2440;--panel2:#112d4d;--line:#23496f;
+    --text:#eff6ff;--muted:#9fb5cc;--accent:#57a9df;--accent2:#4ed0c0;--good:#46c98b;
+    --warn:#f5bf54;--danger:#f06d7c;--shadow:0 12px 36px rgba(0,0,0,.28);--radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:
+    radial-gradient(circle at 12% 0%,rgba(41,107,164,.20),transparent 28%),linear-gradient(180deg,var(--bg2),var(--bg));color:var(--text)}
+  body{padding:16px}
+  button,input,select,textarea{font:inherit}
+  button{cursor:pointer}
+  .app{max-width:1600px;margin:0 auto}
+  .topbar{display:flex;align-items:center;gap:14px;padding:8px 4px 14px;border-bottom:1px solid rgba(119,169,211,.2)}
+  .brand{display:flex;align-items:center;gap:11px;min-width:0}
+  .brand-icon{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#143b62,#0b223b);box-shadow:inset 0 0 18px rgba(82,177,230,.08)}
+  .brand-icon svg{width:29px;height:29px;stroke:#8ed0f3;fill:none;stroke-width:1.7}
+  .brand-copy small{display:block;color:#9dc1dc;font-weight:700;letter-spacing:.04em}
+  .title{font-size:clamp(18px,2vw,28px);font-weight:850;line-height:1.05;margin:0 0 2px;text-transform:uppercase;letter-spacing:.01em}
+  .subtitle{color:var(--muted);font-size:12px}
+  .top-spacer{flex:1}
+  .month{text-align:right;color:#c2d7ea;font-size:13px;white-space:nowrap}
+  .month strong{display:block;color:#fff;font-size:14px}
+
+  .dashboard{display:grid;grid-template-columns:260px minmax(0,1fr);gap:12px;margin-top:12px}
+  .sidebar{display:grid;gap:12px;align-content:start}
+  .panel,.kpi{background:linear-gradient(180deg,rgba(18,48,81,.96),rgba(11,31,55,.96));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .kpi{padding:17px;min-height:142px;position:relative;overflow:hidden}
+  .kpi:after{content:"";position:absolute;width:110px;height:110px;border-radius:50%;right:-38px;bottom:-55px;background:rgba(93,178,224,.06);border:1px solid rgba(93,178,224,.08)}
+  .kpi-label{font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:.03em;color:#d6e8f6;max-width:180px}
+  .kpi-value{font-size:52px;font-weight:900;line-height:1;margin-top:22px;letter-spacing:-.04em}
+  .kpi-text{font-size:21px;font-weight:850;line-height:1.18;margin-top:26px;color:#bcd1e5}
+  .kpi-icon{position:absolute;right:20px;bottom:24px;font-size:36px;opacity:.65}
+  .workspace{min-width:0;display:grid;gap:12px}
+  .panel{padding:14px}
+  .panel-title{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}
+  .panel-title h2{font-size:13px;margin:0;text-transform:uppercase;letter-spacing:.035em}
+  .panel-title .hint{font-size:11px;color:var(--muted)}
+  .chart-panel{padding-bottom:10px}
+  .chart{display:grid;gap:10px;min-height:210px;padding:4px 2px}
+  .bar-row{display:grid;grid-template-columns:minmax(145px,240px) minmax(100px,1fr) 32px;align-items:center;gap:10px}
+  .bar-label{font-size:12px;text-align:right;color:#d5e3f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-track{height:22px;background:#0a192b;border-radius:4px;position:relative;border:1px solid rgba(93,156,202,.22);overflow:hidden}
+  .bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#2b87b5,#4d9dc6);box-shadow:0 0 12px rgba(78,169,216,.17);transition:width .25s ease}
+  .bar-row:nth-child(3) .bar-fill{background:linear-gradient(90deg,#329a8b,#65bd9d)}
+  .bar-row:nth-child(4) .bar-fill{background:linear-gradient(90deg,#4a9e86,#71ba95)}
+  .bar-row:nth-child(5) .bar-fill{background:linear-gradient(90deg,#6cb090,#9bc39b)}
+  .bar-value{font-weight:900;font-size:13px}
+  .location-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+  .loc-card{min-height:92px;padding:11px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#102945,#0b1e35);display:flex;flex-direction:column;justify-content:space-between}
+  .loc-name{font-size:11px;font-weight:850;text-transform:uppercase;text-align:center;line-height:1.1;min-height:25px}
+  .loc-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#a9c8df}
+  .loc-count{min-width:42px;text-align:center;border:1px solid #285179;border-radius:6px;padding:3px 7px;font-weight:850;color:#fff;background:#0d223b}
+
+  .content-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(300px,.9fr);gap:12px}
+  .table-panel{padding:0;overflow:hidden}
+  .table-header{padding:12px 14px 9px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  .table-header h2{font-size:13px;margin:0;text-transform:uppercase;margin-right:auto}
+  .toolbar{display:flex;flex-wrap:wrap;gap:7px;width:100%;padding:10px 14px;border-bottom:1px solid rgba(43,83,119,.68);background:rgba(4,19,34,.22)}
+  .input,.select,.editor-input,.editor-select,textarea{background:#081a2d;border:1px solid #285073;color:var(--text);border-radius:8px;outline:none;transition:border .15s,box-shadow .15s}
+  .input:focus,.select:focus,.editor-input:focus,.editor-select:focus,textarea:focus{border-color:#65b9e2;box-shadow:0 0 0 3px rgba(101,185,226,.12)}
+  .input,.select{padding:8px 10px;font-size:12px}
+  .input{flex:1;min-width:190px}
+  .select{min-width:150px}
+  .btn{border:1px solid #2e628e;background:linear-gradient(180deg,#1f527b,#153958);color:#f5fbff;border-radius:8px;padding:8px 11px;font-weight:800;font-size:12px;box-shadow:inset 0 1px rgba(255,255,255,.05)}
+  .btn:hover{filter:brightness(1.11)}
+  .btn.secondary{background:#0d2741;color:#cce0ef}.btn.danger{border-color:#864858;background:#452231;color:#ffd7dc}.btn.good{border-color:#3c7f72;background:#17483f;color:#ddfff7}
+  .table-wrap{overflow:auto;max-height:530px}
+  table{width:100%;border-collapse:collapse;min-width:850px;font-size:11.5px}
+  thead{position:sticky;top:0;z-index:4;background:#1d5873}
+  th{padding:8px 9px;text-align:left;color:#effaff;font-weight:850;text-transform:uppercase;letter-spacing:.02em;border-right:1px solid rgba(255,255,255,.07)}
+  td{padding:7px 9px;border-bottom:1px solid #193a58;color:#dfeaf4;vertical-align:middle}
+  tbody tr:nth-child(odd){background:rgba(6,22,39,.25)} tbody tr:hover{background:rgba(55,118,165,.13)}
+  td.editable{cursor:text} td.editable:hover{outline:1px dashed rgba(100,183,225,.5);outline-offset:-2px}
+  .status-pill{display:inline-block;padding:3px 7px;border-radius:999px;font-size:10px;font-weight:850;border:1px solid #316181;background:#102c48}
+  .status-concluido{background:#123b31;border-color:#2b715c;color:#c8f7e7}.status-pendente{background:#42351b;border-color:#735c27;color:#ffe4a2}.status-afastado{background:#47242d;border-color:#7a3b4b;color:#ffd4dd}
+  .actions{display:flex;justify-content:flex-end;gap:5px}.icon-btn{width:28px;height:28px;border-radius:7px;border:1px solid #284d6d;background:#0c2238;color:#b8d9ee;display:grid;place-items:center}.icon-btn:hover{background:#153b5c}.icon-btn.delete:hover{background:#4a2430;color:#ffd8df;border-color:#75404d}
+  .editor-input,.editor-select{width:100%;padding:5px 6px;font-size:11.5px}
+  .empty{padding:28px;text-align:center;color:var(--muted)}
+
+  .notes-panel{display:flex;flex-direction:column;min-height:420px}
+  textarea{resize:vertical;min-height:95px;padding:10px;width:100%;font-size:12px}
+  .note-actions{display:flex;justify-content:flex-end;margin-top:8px}
+  .notes-list{display:grid;gap:8px;margin-top:12px;max-height:385px;overflow:auto;padding-right:2px}
+  .note-card{background:#0b2037;border:1px solid #244b6e;border-radius:10px;padding:10px;position:relative}
+  .note-text{white-space:pre-wrap;font-size:12px;line-height:1.45;padding-right:26px;color:#e4eef7}.note-meta{font-size:10px;color:#89a9c2;margin-top:7px}.note-delete{position:absolute;top:7px;right:7px}
+  .note-empty{text-align:center;color:var(--muted);font-size:12px;padding:28px 8px}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(1,6,13,.72);display:none;place-items:center;padding:16px;z-index:50;backdrop-filter:blur(3px)}
+  .modal-backdrop.open{display:grid}.modal{width:min(520px,100%);background:#0d223b;border:1px solid #315c82;border-radius:14px;box-shadow:0 30px 70px rgba(0,0,0,.45);padding:18px}
+  .modal h3{margin:0 0 14px;font-size:16px}.form-grid{display:grid;gap:10px}.form-grid label{display:grid;gap:5px;color:#bcd0df;font-size:11px;font-weight:750}.form-grid input,.form-grid select{padding:9px 10px;background:#07182a;border:1px solid #2a5273;color:#fff;border-radius:8px;outline:none}.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+  .toast{position:fixed;right:18px;bottom:18px;z-index:80;max-width:360px;background:#102a45;border:1px solid #3873a3;color:#f4fbff;border-radius:10px;padding:10px 13px;box-shadow:var(--shadow);opacity:0;transform:translateY(12px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}.toast.error{border-color:#92505e;background:#45252e}
+  .footer{display:flex;justify-content:space-between;gap:10px;color:#7595ad;font-size:10px;margin-top:8px;padding:0 3px}.footer strong{color:#adc8dc}
+
+  @media(max-width:1100px){.dashboard{grid-template-columns:1fr}.sidebar{grid-template-columns:repeat(3,1fr)}.kpi{min-height:120px}.kpi-value{margin-top:18px}.content-grid{grid-template-columns:1fr}.notes-panel{min-height:unset}.notes-list{max-height:280px}}
+  @media(max-width:760px){body{padding:9px}.topbar{align-items:flex-start}.brand-icon{width:38px;height:38px}.title{font-size:17px}.month{display:none}.sidebar{grid-template-columns:1fr}.kpi{min-height:105px}.kpi-value{font-size:42px;margin-top:14px}.kpi-text{margin-top:16px}.location-cards{grid-template-columns:repeat(2,1fr)}.bar-row{grid-template-columns:110px 1fr 26px}.bar-label{white-space:normal;font-size:10px}.panel{padding:10px}.toolbar{padding:9px 10px}.select{min-width:100%;width:100%}.input{min-width:100%}.table-header{padding:10px}.footer{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand-icon" aria-hidden="true">
+      <svg viewBox="0 0 32 32"><rect x="7" y="3" width="18" height="21" rx="4"/><path d="M10 7h12M10 13h12M9 28l4-4m10 4-4-4M11 18h2m6 0h2"/></svg>
+    </div>
+    <div class="brand">
+      <div class="brand-copy"><small>TRAÇÃO FERROVIÁRIA</small><h1 class="title">Treinamento de Operadores — Resumo Operacional e Alocação</h1><div class="subtitle">Consulta de efetivo • acesso autorizado • atualização automática</div></div>
+    </div>
+    <div class="top-spacer"></div>
+    <div class="month"><strong id="monthLabel">Setembro 2026</strong><span>Modo operacional</span></div>
+  </header>
+
+  <main class="dashboard">
+    <aside class="sidebar">
+      <section class="kpi"><div class="kpi-label">Total de operadores em treinamento</div><div class="kpi-value" id="totalOperators">22</div><div class="kpi-icon">👥</div></section>
+      <section class="kpi"><div class="kpi-label">Principal local de treinamento</div><div class="kpi-text" id="mainLocation">Deodoro + Santa Cruz</div><div class="kpi-icon">🚆</div></section>
+      <section class="kpi"><div class="kpi-label">Total de locais monitorados</div><div class="kpi-value" id="totalLocations">5</div><div class="kpi-icon">◉</div></section>
+    </aside>
+
+    <div class="workspace">
+      <section class="panel chart-panel">
+        <div class="panel-title"><h2>Alocação por local de treinamento</h2><span class="hint">Atualização automática</span></div>
+        <div id="allocationChart" class="chart" aria-label="Gráfico de barras de alocação por local"></div>
+      </section>
+
+      <section class="location-cards" id="locationCards"></section>
+
+      <div class="content-grid">
+        <section class="panel table-panel">
+          <div class="table-header">
+            <h2>Lista detalhada de operadores</h2>
+            
+            
+            
+          </div>
+          <div class="toolbar">
+            <input class="input" id="searchInput" type="search" placeholder="Pesquisar por matrícula ou nome..." autocomplete="off">
+            <select class="select" id="locationFilter"><option value="">Todos os locais</option></select>
+            <select class="select" id="statusFilter"><option value="">Todos os status</option></select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th style="width:105px">Matrícula</th><th>Nome</th><th style="width:210px">Onde Treinar</th><th style="width:140px">Status</th></tr></thead>
+              <tbody id="operatorTableBody"></tbody>
+            </table>
+            <div class="empty" id="emptyTable" hidden>Nenhum operador encontrado com os filtros atuais.</div>
+          </div>
+        </section>
+
+        <section class="panel notes-panel">
+          <div class="panel-title"><h2>Quadro de avisos</h2><span class="hint" id="noteCount">0 notas</span></div>
+          
+          
+          <div class="notes-list" id="notesList"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <section class="panel" style="margin-top:12px" id="accessPanel"><div class="panel-title"><h2>Consulta compartilhada</h2><span class="hint" id="connectionStatus">Aguardando conexão</span></div>
+<div class="toolbar" style="border:0;background:transparent"><input class="input" id="projectUrl" placeholder="URL do projeto Supabase" autocomplete="off"><input class="input" id="publicKey" placeholder="Chave pública (publishable / anon)" autocomplete="off"><button class="btn secondary" id="connectBtn">Configurar conexão</button></div>
+<div class="toolbar" style="border:0;background:transparent"><input class="input" id="loginEmail" type="email" placeholder="E-mail autorizado" autocomplete="username"><input class="input" id="loginPassword" type="password" placeholder="Senha" autocomplete="current-password"><button class="btn good" id="loginBtn">Entrar para consultar</button><button class="btn secondary" id="logoutBtn">Sair</button><button class="btn" id="refreshBtn">Atualizar</button></div>
+<p style="color:var(--muted);font-size:12px;margin-bottom:0">Leitura exclusiva. Não é possível incluir, excluir ou alterar registros nesta página. Somente usuários autorizados podem visualizar os dados.</p></section>
+  <footer class="footer"><span>Consulta segura • somente contas autorizadas • requer internet</span><span id="visibleCount">22 de 22 operadores exibidos</span></footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+(()=>{
+'use strict';
+const LOCATIONS=['Deodoro + Santa Cruz','Deodoro + Japeri','Saracuruna + Gramacho','CTO','PCT'];
+const STATUSES=['Em treinamento','Concluído','Pendente','Afastado'];
+const CONFIG='treinamento.consulta.config.v1';
+const $=id=>document.getElementById(id);
+let client=null,version=null,state={operators:[],notes:[]},timer=null,filters={query:'',location:'',status:''};
+const status=t=>$('connectionStatus').textContent=t;
+const option=v=>{const o=document.createElement('option');o.value=v;o.textContent=v;return o};
+function display(){
+ const ops=state.operators;
+ $('totalOperators').textContent=ops.length;
+ const counts=Object.fromEntries(LOCATIONS.map(k=>[k,0]));ops.forEach(x=>{counts[x.local]=(counts[x.local]||0)+1});
+ const ranking=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+ $('mainLocation').textContent=ranking[0]?.[1]?ranking[0][0]:'—';
+ $('totalLocations').textContent=Object.values(counts).filter(Boolean).length;
+ const chart=$('allocationChart');chart.replaceChildren();const max=Math.max(1,...Object.values(counts));
+ LOCATIONS.forEach((loc,i)=>{
+  const row=document.createElement('div');row.className='bar-row';
+  const label=document.createElement('div');label.className='bar-label';label.textContent=loc;
+  const track=document.createElement('div');track.className='bar-track';const fill=document.createElement('div');fill.className='bar-fill';fill.style.width=(counts[loc]/max*100)+'%';track.append(fill);
+  const count=document.createElement('div');count.className='bar-value';count.textContent=counts[loc];row.append(label,track,count);chart.append(row);
+ });
+ const cards=$('locationCards');cards.replaceChildren();
+ LOCATIONS.forEach((loc,i)=>{const c=document.createElement('div');c.className='loc-card';const title=document.createElement('div');title.className='loc-name';title.textContent=loc;const bottom=document.createElement('div');bottom.className='loc-bottom';const ico=document.createElement('span');ico.textContent=['🚆','🚆','🚉','▣','⌖'][i];const num=document.createElement('span');num.className='loc-count';num.textContent=counts[loc];bottom.append(ico,num);c.append(title,bottom);cards.append(c)});
+ const q=filters.query.toLocaleLowerCase('pt-BR').trim();const shown=ops.filter(x=>(!q||String(x.nome).toLocaleLowerCase('pt-BR').includes(q)||String(x.matricula).includes(q))&&(!filters.location||x.local===filters.location)&&(!filters.status||x.status===filters.status));
+ const tbody=$('operatorTableBody');tbody.replaceChildren();$('emptyTable').hidden=shown.length>0;
+ shown.forEach(x=>{const tr=document.createElement('tr');[x.matricula,x.nome,x.local,x.status].forEach((v,i)=>{const cell=document.createElement('td');if(i===3){const pill=document.createElement('span');pill.className='status-pill '+(v==='Concluído'?'status-concluido':v==='Pendente'?'status-pendente':v==='Afastado'?'status-afastado':'');pill.textContent=v;cell.append(pill)}else cell.textContent=v??'';tr.append(cell)});tbody.append(tr)});
+ $('visibleCount').textContent=`${shown.length} de ${ops.length} operadores exibidos`;
+ const list=$('notesList');list.replaceChildren();$('noteCount').textContent=state.notes.length+' notas';
+ [...state.notes].reverse().forEach(n=>{const c=document.createElement('article');c.className='note-card';const t=document.createElement('div');t.className='note-text';t.textContent=n.text;const d=document.createElement('div');d.className='note-meta';d.textContent=new Date(n.createdAt).toLocaleString('pt-BR');c.append(t,d);list.append(c)});
+ if(!state.notes.length){const empty=document.createElement('div');empty.className='note-empty';empty.textContent='Nenhuma nota cadastrada.';list.append(empty)}
+}
+function initialize(){if(!window.supabase)throw Error('Biblioteca indisponível. Verifique a internet');const url=$('projectUrl').value.trim().replace(/\/$/,'');const key=$('publicKey').value.trim();if(!/^https:\/\/[\w.-]+\.supabase\.co$/.test(url)||!key)throw Error('URL e chave pública inválidas');client=window.supabase.createClient(url,key,{auth:{persistSession:true,storageKey:'consulta-operadores-auth'}});localStorage.setItem(CONFIG,JSON.stringify({url,key}));status('Conexão configurada • autentique-se')}
+async function refresh(){if(!client)throw Error('Configure a conexão');const {data:{user},error:e}=await client.auth.getUser();if(e||!user)throw Error('Autenticação necessária');const {data,error}=await client.from('operator_dashboard').select('version,data').eq('id',1).maybeSingle();if(error)throw error;if(!data)throw Error('Base não disponível ou acesso não autorizado');if(!data.data||!Array.isArray(data.data.operators)||!Array.isArray(data.data.notes))throw Error('Formato inválido');if(version!==data.version){state=data.data;version=data.version;display()}status('Consulta conectada • '+user.email+' • versão '+version)}
+async function run(task){try{await task()}catch(e){status('Atenção: '+e.message);console.error(e)}}
+$('connectBtn').addEventListener('click',()=>run(async()=>{initialize();await refresh()}));
+$('loginBtn').addEventListener('click',()=>run(async()=>{if(!client)initialize();const {error}=await client.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});if(error)throw error;$('loginPassword').value='';await refresh()}));
+$('logoutBtn').addEventListener('click',()=>run(async()=>{if(client)await client.auth.signOut();state={operators:[],notes:[]};version=null;display();status('Sessão encerrada')}));
+$('refreshBtn').addEventListener('click',()=>run(refresh));
+$('searchInput').addEventListener('input',e=>{filters.query=e.target.value;display()});
+$('locationFilter').addEventListener('change',e=>{filters.location=e.target.value;display()});
+$('statusFilter').addEventListener('change',e=>{filters.status=e.target.value;display()});
+LOCATIONS.forEach(x=>$('locationFilter').append(option(x)));STATUSES.forEach(x=>$('statusFilter').append(option(x)));
+const label=new Intl.DateTimeFormat('pt-BR',{month:'long',year:'numeric'}).format(new Date());$('monthLabel').textContent=label.charAt(0).toUpperCase()+label.slice(1);
+display();
+  if(!$('projectUrl').value){ $('projectUrl').value='https://vubxusuolbqxkkcqfvks.supabase.co'; $('publicKey').value='sb_publishable__HmA-9LQNsxQPI7Fcti1Pg_n-804jrb'; }
+try{const saved=JSON.parse(localStorage.getItem(CONFIG)||'null');if(saved){$('projectUrl').value=saved.url;$('publicKey').value=saved.key;run(async()=>{initialize();await refresh()})}else{run(async()=>{initialize();await refresh()})}}catch(e){console.warn(e)}
+timer=setInterval(()=>{if(client)run(refresh)},15000);
+})();
+</script>
+</body>
+</html>
