@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Treinamento de Operadores - Dashboard</title>
+<style>
+  :root{
+    color-scheme:dark;
+    --bg:#07111f;--bg2:#0a1728;--panel:#0e2440;--panel2:#112d4d;--line:#23496f;
+    --text:#eff6ff;--muted:#9fb5cc;--accent:#57a9df;--accent2:#4ed0c0;--good:#46c98b;
+    --warn:#f5bf54;--danger:#f06d7c;--shadow:0 12px 36px rgba(0,0,0,.28);--radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:
+    radial-gradient(circle at 12% 0%,rgba(41,107,164,.20),transparent 28%),linear-gradient(180deg,var(--bg2),var(--bg));color:var(--text)}
+  body{padding:16px}
+  button,input,select,textarea{font:inherit}
+  button{cursor:pointer}
+  .app{max-width:1600px;margin:0 auto}
+  .topbar{display:flex;align-items:center;gap:14px;padding:8px 4px 14px;border-bottom:1px solid rgba(119,169,211,.2)}
+  .brand{display:flex;align-items:center;gap:11px;min-width:0}
+  .brand-icon{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#143b62,#0b223b);box-shadow:inset 0 0 18px rgba(82,177,230,.08)}
+  .brand-icon svg{width:29px;height:29px;stroke:#8ed0f3;fill:none;stroke-width:1.7}
+  .brand-copy small{display:block;color:#9dc1dc;font-weight:700;letter-spacing:.04em}
+  .title{font-size:clamp(18px,2vw,28px);font-weight:850;line-height:1.05;margin:0 0 2px;text-transform:uppercase;letter-spacing:.01em}
+  .subtitle{color:var(--muted);font-size:12px}
+  .top-spacer{flex:1}
+  .month{text-align:right;color:#c2d7ea;font-size:13px;white-space:nowrap}
+  .month strong{display:block;color:#fff;font-size:14px}
+
+  .dashboard{display:grid;grid-template-columns:260px minmax(0,1fr);gap:12px;margin-top:12px}
+  .sidebar{display:grid;gap:12px;align-content:start}
+  .panel,.kpi{background:linear-gradient(180deg,rgba(18,48,81,.96),rgba(11,31,55,.96));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .kpi{padding:17px;min-height:142px;position:relative;overflow:hidden}
+  .kpi:after{content:"";position:absolute;width:110px;height:110px;border-radius:50%;right:-38px;bottom:-55px;background:rgba(93,178,224,.06);border:1px solid rgba(93,178,224,.08)}
+  .kpi-label{font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:.03em;color:#d6e8f6;max-width:180px}
+  .kpi-value{font-size:52px;font-weight:900;line-height:1;margin-top:22px;letter-spacing:-.04em}
+  .kpi-text{font-size:21px;font-weight:850;line-height:1.18;margin-top:26px;color:#bcd1e5}
+  .kpi-icon{position:absolute;right:20px;bottom:24px;font-size:36px;opacity:.65}
+  .workspace{min-width:0;display:grid;gap:12px}
+  .panel{padding:14px}
+  .panel-title{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}
+  .panel-title h2{font-size:13px;margin:0;text-transform:uppercase;letter-spacing:.035em}
+  .panel-title .hint{font-size:11px;color:var(--muted)}
+  .chart-panel{padding-bottom:10px}
+  .chart{display:grid;gap:10px;min-height:210px;padding:4px 2px}
+  .bar-row{display:grid;grid-template-columns:minmax(145px,240px) minmax(100px,1fr) 32px;align-items:center;gap:10px}
+  .bar-label{font-size:12px;text-align:right;color:#d5e3f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-track{height:22px;background:#0a192b;border-radius:4px;position:relative;border:1px solid rgba(93,156,202,.22);overflow:hidden}
+  .bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#2b87b5,#4d9dc6);box-shadow:0 0 12px rgba(78,169,216,.17);transition:width .25s ease}
+  .bar-row:nth-child(3) .bar-fill{background:linear-gradient(90deg,#329a8b,#65bd9d)}
+  .bar-row:nth-child(4) .bar-fill{background:linear-gradient(90deg,#4a9e86,#71ba95)}
+  .bar-row:nth-child(5) .bar-fill{background:linear-gradient(90deg,#6cb090,#9bc39b)}
+  .bar-value{font-weight:900;font-size:13px}
+  .location-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+  .loc-card{min-height:92px;padding:11px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#102945,#0b1e35);display:flex;flex-direction:column;justify-content:space-between}
+  .loc-name{font-size:11px;font-weight:850;text-transform:uppercase;text-align:center;line-height:1.1;min-height:25px}
+  .loc-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#a9c8df}
+  .loc-count{min-width:42px;text-align:center;border:1px solid #285179;border-radius:6px;padding:3px 7px;font-weight:850;color:#fff;background:#0d223b}
+
+  .content-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(300px,.9fr);gap:12px}
+  .table-panel{padding:0;overflow:hidden}
+  .table-header{padding:12px 14px 9px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  .table-header h2{font-size:13px;margin:0;text-transform:uppercase;margin-right:auto}
+  .toolbar{display:flex;flex-wrap:wrap;gap:7px;width:100%;padding:10px 14px;border-bottom:1px solid rgba(43,83,119,.68);background:rgba(4,19,34,.22)}
+  .input,.select,.editor-input,.editor-select,textarea{background:#081a2d;border:1px solid #285073;color:var(--text);border-radius:8px;outline:none;transition:border .15s,box-shadow .15s}
+  .input:focus,.select:focus,.editor-input:focus,.editor-select:focus,textarea:focus{border-color:#65b9e2;box-shadow:0 0 0 3px rgba(101,185,226,.12)}
+  .input,.select{padding:8px 10px;font-size:12px}
+  .input{flex:1;min-width:190px}
+  .select{min-width:150px}
+  .btn{border:1px solid #2e628e;background:linear-gradient(180deg,#1f527b,#153958);color:#f5fbff;border-radius:8px;padding:8px 11px;font-weight:800;font-size:12px;box-shadow:inset 0 1px rgba(255,255,255,.05)}
+  .btn:hover{filter:brightness(1.11)}
+  .btn.secondary{background:#0d2741;color:#cce0ef}.btn.danger{border-color:#864858;background:#452231;color:#ffd7dc}.btn.good{border-color:#3c7f72;background:#17483f;color:#ddfff7}
+  .table-wrap{overflow:auto;max-height:530px}
+  table{width:100%;border-collapse:collapse;min-width:850px;font-size:11.5px}
+  thead{position:sticky;top:0;z-index:4;background:#1d5873}
+  th{padding:8px 9px;text-align:left;color:#effaff;font-weight:850;text-transform:uppercase;letter-spacing:.02em;border-right:1px solid rgba(255,255,255,.07)}
+  td{padding:7px 9px;border-bottom:1px solid #193a58;color:#dfeaf4;vertical-align:middle}
+  tbody tr:nth-child(odd){background:rgba(6,22,39,.25)} tbody tr:hover{background:rgba(55,118,165,.13)}
+  td.editable{cursor:text} td.editable:hover{outline:1px dashed rgba(100,183,225,.5);outline-offset:-2px}
+  .status-pill{display:inline-block;padding:3px 7px;border-radius:999px;font-size:10px;font-weight:850;border:1px solid #316181;background:#102c48}
+  .status-concluido{background:#123b31;border-color:#2b715c;color:#c8f7e7}.status-pendente{background:#42351b;border-color:#735c27;color:#ffe4a2}.status-afastado{background:#47242d;border-color:#7a3b4b;color:#ffd4dd}
+  .actions{display:flex;justify-content:flex-end;gap:5px}.icon-btn{width:28px;height:28px;border-radius:7px;border:1px solid #284d6d;background:#0c2238;color:#b8d9ee;display:grid;place-items:center}.icon-btn:hover{background:#153b5c}.icon-btn.delete:hover{background:#4a2430;color:#ffd8df;border-color:#75404d}
+  .editor-input,.editor-select{width:100%;padding:5px 6px;font-size:11.5px}
+  .empty{padding:28px;text-align:center;color:var(--muted)}
+
+  .notes-panel{display:flex;flex-direction:column;min-height:420px}
+  textarea{resize:vertical;min-height:95px;padding:10px;width:100%;font-size:12px}
+  .note-actions{display:flex;justify-content:flex-end;margin-top:8px}
+  .notes-list{display:grid;gap:8px;margin-top:12px;max-height:385px;overflow:auto;padding-right:2px}
+  .note-card{background:#0b2037;border:1px solid #244b6e;border-radius:10px;padding:10px;position:relative}
+  .note-text{white-space:pre-wrap;font-size:12px;line-height:1.45;padding-right:26px;color:#e4eef7}.note-meta{font-size:10px;color:#89a9c2;margin-top:7px}.note-delete{position:absolute;top:7px;right:7px}
+  .note-empty{text-align:center;color:var(--muted);font-size:12px;padding:28px 8px}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(1,6,13,.72);display:none;place-items:center;padding:16px;z-index:50;backdrop-filter:blur(3px)}
+  .modal-backdrop.open{display:grid}.modal{width:min(520px,100%);background:#0d223b;border:1px solid #315c82;border-radius:14px;box-shadow:0 30px 70px rgba(0,0,0,.45);padding:18px}
+  .modal h3{margin:0 0 14px;font-size:16px}.form-grid{display:grid;gap:10px}.form-grid label{display:grid;gap:5px;color:#bcd0df;font-size:11px;font-weight:750}.form-grid input,.form-grid select{padding:9px 10px;background:#07182a;border:1px solid #2a5273;color:#fff;border-radius:8px;outline:none}.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+  .toast{position:fixed;right:18px;bottom:18px;z-index:80;max-width:360px;background:#102a45;border:1px solid #3873a3;color:#f4fbff;border-radius:10px;padding:10px 13px;box-shadow:var(--shadow);opacity:0;transform:translateY(12px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}.toast.error{border-color:#92505e;background:#45252e}
+  .footer{display:flex;justify-content:space-between;gap:10px;color:#7595ad;font-size:10px;margin-top:8px;padding:0 3px}.footer strong{color:#adc8dc}
+
+  @media(max-width:1100px){.dashboard{grid-template-columns:1fr}.sidebar{grid-template-columns:repeat(3,1fr)}.kpi{min-height:120px}.kpi-value{margin-top:18px}.content-grid{grid-template-columns:1fr}.notes-panel{min-height:unset}.notes-list{max-height:280px}}
+  @media(max-width:760px){body{padding:9px}.topbar{align-items:flex-start}.brand-icon{width:38px;height:38px}.title{font-size:17px}.month{display:none}.sidebar{grid-template-columns:1fr}.kpi{min-height:105px}.kpi-value{font-size:42px;margin-top:14px}.kpi-text{margin-top:16px}.location-cards{grid-template-columns:repeat(2,1fr)}.bar-row{grid-template-columns:110px 1fr 26px}.bar-label{white-space:normal;font-size:10px}.panel{padding:10px}.toolbar{padding:9px 10px}.select{min-width:100%;width:100%}.input{min-width:100%}.table-header{padding:10px}.footer{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand-icon" aria-hidden="true">
+      <svg viewBox="0 0 32 32"><rect x="7" y="3" width="18" height="21" rx="4"/><path d="M10 7h12M10 13h12M9 28l4-4m10 4-4-4M11 18h2m6 0h2"/></svg>
+    </div>
+    <div class="brand">
+      <div class="brand-copy"><small>TRAÇÃO FERROVIÁRIA</small><h1 class="title">Treinamento de Operadores — Resumo Operacional e Alocação</h1><div class="subtitle">Gestão de efetivo • edição direta • dados locais com opção de sincronização segura</div></div>
+    </div>
+    <div class="top-spacer"></div>
+    <div class="month"><strong id="monthLabel">Setembro 2026</strong><span>Modo operacional</span></div>
+  </header>
+
+  <main class="dashboard">
+    <aside class="sidebar">
+      <section class="kpi"><div class="kpi-label">Total de operadores em treinamento</div><div class="kpi-value" id="totalOperators">22</div><div class="kpi-icon">👥</div></section>
+      <section class="kpi"><div class="kpi-label">Principal local de treinamento</div><div class="kpi-text" id="mainLocation">Deodoro + Santa Cruz</div><div class="kpi-icon">🚆</div></section>
+      <section class="kpi"><div class="kpi-label">Total de locais monitorados</div><div class="kpi-value" id="totalLocations">5</div><div class="kpi-icon">◉</div></section>
+    </aside>
+
+    <div class="workspace">
+      <section class="panel chart-panel">
+        <div class="panel-title"><h2>Alocação por local de treinamento</h2><span class="hint">Atualização automática</span></div>
+        <div id="allocationChart" class="chart" aria-label="Gráfico de barras de alocação por local"></div>
+      </section>
+
+      <section class="location-cards" id="locationCards"></section>
+
+      <div class="content-grid">
+        <section class="panel table-panel">
+          <div class="table-header">
+            <h2>Lista detalhada de operadores</h2>
+            <button class="btn good" id="addOperatorBtn" type="button">＋ Adicionar Novo Operador</button>
+            <button class="btn secondary" id="exportCsvBtn" type="button">⇩ Exportar CSV</button>
+            <button class="btn secondary" id="backupBtn" type="button">⇩ Backup completo (JSON)</button>
+            <button class="btn secondary" id="importBtn" type="button">⇧ Importar backup</button>
+            <input id="importFile" type="file" accept=".json,application/json" hidden>
+            <button class="btn danger" id="resetBtn" type="button">↺ Restaurar Base Inicial</button>
+          </div>
+          <div class="toolbar">
+            <input class="input" id="searchInput" type="search" placeholder="Pesquisar por matrícula ou nome..." autocomplete="off">
+            <select class="select" id="locationFilter"><option value="">Todos os locais</option></select>
+            <select class="select" id="statusFilter"><option value="">Todos os status</option></select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th style="width:105px">Matrícula</th><th>Nome</th><th style="width:210px">Onde Treinar</th><th style="width:140px">Status</th><th style="width:76px;text-align:right">Ações</th></tr></thead>
+              <tbody id="operatorTableBody"></tbody>
+            </table>
+            <div class="empty" id="emptyTable" hidden>Nenhum operador encontrado com os filtros atuais.</div>
+          </div>
+        </section>
+
+        <section class="panel notes-panel">
+          <div class="panel-title"><h2>Quadro de avisos</h2><span class="hint" id="noteCount">0 notas</span></div>
+          <textarea id="noteText" maxlength="1000" placeholder="Digite uma observação operacional, pendência ou lembrete..."></textarea>
+          <div class="note-actions"><button class="btn" id="addNoteBtn" type="button">＋ Adicionar Nota</button></div>
+          <div class="notes-list" id="notesList"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <section class="panel" style="margin-top:12px" id="cloudPanel">
+    <div class="panel-title"><h2>Sincronização compartilhada</h2><span class="hint" id="cloudStatus">Modo local: não compartilhado</span></div>
+    <div class="toolbar" style="background:transparent;padding:0;border:0">
+      <input class="input" id="supabaseUrl" placeholder="URL do projeto Supabase (https://....supabase.co)" aria-label="URL do projeto Supabase">
+      <input class="input" id="supabaseKey" placeholder="Chave pública/publishable (anon)" aria-label="Chave pública Supabase">
+      <button class="btn secondary" type="button" id="cloudConfigure">Conectar projeto</button>
+    </div>
+    <div class="toolbar" style="background:transparent;padding:10px 0 0;border:0">
+      <input class="input" id="cloudEmail" type="email" autocomplete="username" placeholder="E-mail autorizado">
+      <input class="input" id="cloudPassword" type="password" autocomplete="current-password" placeholder="Senha">
+      <button class="btn good" type="button" id="cloudLogin">Entrar</button>
+      <button class="btn secondary" type="button" id="cloudLogout">Sair</button>
+    </div>
+    <div class="toolbar" style="background:transparent;padding:10px 0 0;border:0">
+      <button class="btn secondary" type="button" id="cloudDownload">Atualizar da nuvem</button>
+      <button class="btn good" type="button" id="cloudUpload">Migrar dados deste navegador para a nuvem</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);line-height:1.5;margin:8px 0 0">Antes de migrar, clique em <b>Backup completo (JSON)</b>. A migração substitui a base compartilhada e exige confirmação. Se a conexão cair, a edição compartilhada é bloqueada para evitar alterações divergentes. Use a mesma URL e chave pública do projeto com contas autorizadas.</p>
+  </section>
+  <footer class="footer"><span>Backup local: <strong>ativo</strong> • sincronização compartilhada requer internet</span><span id="visibleCount">22 de 22 operadores exibidos</span></footer>
+</div>
+
+<div class="modal-backdrop" id="operatorModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <form class="modal" id="operatorForm">
+    <h3 id="modalTitle">Adicionar Novo Operador</h3>
+    <div class="form-grid">
+      <label>Matrícula<input id="newMatricula" required maxlength="20" autocomplete="off"></label>
+      <label>Nome<input id="newNome" required maxlength="120" autocomplete="off"></label>
+      <label>Onde Treinar<select id="newLocal" required></select></label>
+      <label>Status<select id="newStatus" required></select></label>
+    </div>
+    <div class="modal-footer"><button class="btn secondary" type="button" id="cancelModalBtn">Cancelar</button><button class="btn good" type="submit">Salvar Operador</button></div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+(() => {
+  'use strict';
+  const STORAGE_KEY = 'treinamentoOperadores.v1';
+  const LOCATIONS = ['Deodoro + Santa Cruz','Deodoro + Japeri','Saracuruna + Gramacho','CTO','PCT'];
+  const STATUSES = ['Em treinamento','Concluído','Pendente','Afastado'];
+  const INITIAL_OPERATORS = []; // Dados obtidos somente após autenticação no Supabase
+
+  const $ = id => document.getElementById(id);
+  const els = {
+    totalOperators:$('totalOperators'), mainLocation:$('mainLocation'), totalLocations:$('totalLocations'),
+    chart:$('allocationChart'), locationCards:$('locationCards'), body:$('operatorTableBody'), empty:$('emptyTable'),
+    search:$('searchInput'), locationFilter:$('locationFilter'), statusFilter:$('statusFilter'), visibleCount:$('visibleCount'),
+    notesList:$('notesList'), noteText:$('noteText'), noteCount:$('noteCount'), modal:$('operatorModal'), form:$('operatorForm'),
+    newMatricula:$('newMatricula'), newNome:$('newNome'), newLocal:$('newLocal'), newStatus:$('newStatus'), toast:$('toast')
+  };
+
+  let state = {operators:[],notes:[]};
+  const startupLocalSnapshot=structuredCloneSafe(state);
+  let cloudClient = null, cloudReady = false, cloudVersion = null, cloudHasRow = false, cloudBusy = false, cloudTimer = null;
+  const CONFIG_KEY = 'treinamentoOperadores.cloudConfig.v1';
+  let cloudMode = false;
+  let localWasChanged = false;
+  let pendingMigrationSnapshot=structuredCloneSafe(startupLocalSnapshot);
+  let filters = {query:'',location:'',status:''};
+  let toastTimer;
+
+  function freshState(){ return {operators: structuredCloneSafe(INITIAL_OPERATORS), notes:[]}; }
+  function structuredCloneSafe(value){ return typeof structuredClone === 'function' ? structuredClone(value) : JSON.parse(JSON.stringify(value)); }
+  function normalizeOperator(op, index=0){
+    return {
+      id:String(op?.id || `op-${Date.now()}-${index}`), matricula:String(op?.matricula ?? '').trim(),
+      nome:String(op?.nome ?? '').trim(), local:LOCATIONS.includes(op?.local) ? op.local : LOCATIONS[0],
+      status:STATUSES.includes(op?.status) ? op.status : STATUSES[0]
+    };
+  }
+  function loadState(){
+    try{
+      const raw=localStorage.getItem(STORAGE_KEY); if(!raw) return freshState();
+      const parsed=JSON.parse(raw); if(!parsed || !Array.isArray(parsed.operators) || !Array.isArray(parsed.notes)) return freshState();
+      return {operators:parsed.operators.map(normalizeOperator),notes:parsed.notes.map((n,i)=>({id:String(n?.id||`note-${i}`),text:String(n?.text||''),createdAt:String(n?.createdAt||new Date().toISOString())})).filter(n=>n.text.trim())};
+    }catch(e){ console.warn('Falha ao carregar dados locais:',e); return freshState(); }
+  }
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }
+    catch(e){ showToast('Não foi possível salvar no navegador. Verifique o armazenamento local.',true); }
+  }
+  async function commit(mutator,message){
+    if(cloudBusy){showToast('Sincronização em andamento. Tente novamente.',true);return}
+    if(!cloudReady){showToast('Sem conexão com a base compartilhada. Alteração bloqueada.',true);return}
+    const before=structuredCloneSafe(state);
+    mutator(state);
+    if(cloudMode){
+      cloudBusy=true;
+      try{await saveCloud(state);saveState();renderAll();if(message)showToast(message+' (compartilhada)')}
+      catch(e){state=before;renderAll();showToast('Não foi salvo: '+e.message,true);await fetchCloud(false).catch(()=>{})}
+      finally{cloudBusy=false}
+    } else {saveState();renderAll();localWasChanged=true;if(message)showToast(message+' (somente neste navegador)')}
+  }
+
+  function computeStats(operators){
+    const byLocation=Object.fromEntries(LOCATIONS.map(l=>[l,0]));
+    const byStatus=Object.fromEntries(STATUSES.map(s=>[s,0]));
+    operators.forEach(op=>{byLocation[op.local]=(byLocation[op.local]||0)+1;byStatus[op.status]=(byStatus[op.status]||0)+1});
+    return {total:operators.length,byLocation,byStatus};
+  }
+  function filterOperators(operators){
+    const q=filters.query.trim().toLocaleLowerCase('pt-BR');
+    return operators.filter(op=>(!q||op.matricula.toLocaleLowerCase('pt-BR').includes(q)||op.nome.toLocaleLowerCase('pt-BR').includes(q))&&(!filters.location||op.local===filters.location)&&(!filters.status||op.status===filters.status));
+  }
+  function setText(el,text){el.textContent=text}
+  function option(value,label=value){const o=document.createElement('option');o.value=value;o.textContent=label;return o}
+  function uid(prefix){return (crypto?.randomUUID ? `${prefix}-${crypto.randomUUID()}` : `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`)}
+
+  function renderAll(){
+    const stats=computeStats(state.operators);
+    setText(els.totalOperators,stats.total);
+    const ranked=Object.entries(stats.byLocation).sort((a,b)=>b[1]-a[1]);
+    setText(els.mainLocation,ranked[0]?.[0]||'—');
+    setText(els.totalLocations,Object.values(stats.byLocation).filter(Boolean).length);
+    renderChart(stats.byLocation); renderLocationCards(stats.byLocation); renderTable(); renderNotes();
+  }
+  function renderChart(byLocation){
+    els.chart.replaceChildren(); const max=Math.max(1,...Object.values(byLocation));
+    LOCATIONS.forEach(local=>{
+      const row=document.createElement('div');row.className='bar-row';
+      const label=document.createElement('div');label.className='bar-label';label.textContent=local;
+      const track=document.createElement('div');track.className='bar-track';track.setAttribute('role','img');track.setAttribute('aria-label',`${local}: ${byLocation[local]} operadores`);
+      const fill=document.createElement('div');fill.className='bar-fill';fill.style.width=`${(byLocation[local]/max)*100}%`;track.append(fill);
+      const value=document.createElement('div');value.className='bar-value';value.textContent=byLocation[local];
+      row.append(label,track,value);els.chart.append(row);
+    });
+  }
+  function renderLocationCards(byLocation){
+    els.locationCards.replaceChildren(); const icons=['🚆','🚆','🚉','▣','⌖'];
+    LOCATIONS.forEach((local,i)=>{const card=document.createElement('div');card.className='loc-card';const name=document.createElement('div');name.className='loc-name';name.textContent=local;const bottom=document.createElement('div');bottom.className='loc-bottom';const icon=document.createElement('span');icon.textContent=icons[i];const count=document.createElement('span');count.className='loc-count';count.textContent=byLocation[local]||0;bottom.append(icon,count);card.append(name,bottom);els.locationCards.append(card)});
+  }
+  function statusClass(status){return status==='Concluído'?'status-concluido':status==='Pendente'?'status-pendente':status==='Afastado'?'status-afastado':''}
+  function renderTable(){
+    const visible=filterOperators(state.operators);els.body.replaceChildren();els.empty.hidden=visible.length!==0;
+    visible.forEach(op=>{
+      const tr=document.createElement('tr');
+      tr.append(makeEditableCell(op,'matricula'),makeEditableCell(op,'nome'),makeEditableCell(op,'local'),makeEditableCell(op,'status'));
+      const actions=document.createElement('td');actions.className='actions';
+      const edit=document.createElement('button');edit.type='button';edit.className='icon-btn';edit.title='Editar nome';edit.textContent='✎';edit.addEventListener('click',()=>startEdit(tr.children[1],op,'nome'));
+      const del=document.createElement('button');del.type='button';del.className='icon-btn delete';del.title='Excluir operador';del.textContent='🗑';del.addEventListener('click',()=>deleteOperator(op.id));actions.append(edit,del);tr.append(actions);els.body.append(tr);
+    });
+    setText(els.visibleCount,`${visible.length} de ${state.operators.length} operadores exibidos`);
+  }
+  function makeEditableCell(op,field){
+    const td=document.createElement('td');td.className='editable';td.tabIndex=0;td.dataset.field=field;
+    if(field==='status'){const pill=document.createElement('span');pill.className=`status-pill ${statusClass(op.status)}`;pill.textContent=op.status;td.append(pill)} else td.textContent=op[field];
+    td.title='Clique para editar';td.addEventListener('click',()=>startEdit(td,op,field));td.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();startEdit(td,op,field)}});return td;
+  }
+  function startEdit(td,op,field){
+    if(td.querySelector('input,select')) return; const old=op[field]; const isSelect=field==='local'||field==='status'; const editor=document.createElement(isSelect?'select':'input');editor.className=isSelect?'editor-select':'editor-input';
+    if(isSelect){(field==='local'?LOCATIONS:STATUSES).forEach(v=>editor.append(option(v)));editor.value=old}else{editor.value=old;editor.maxLength=field==='matricula'?20:120}
+    td.replaceChildren(editor);editor.focus();if(!isSelect)editor.select();let done=false;
+    const finish=(save)=>{if(done)return;done=true;const next=editor.value.trim();if(save&&next&&next!==old){commit(s=>{const target=s.operators.find(x=>x.id===op.id);if(target)target[field]=next},'Alteração salva.')}else renderTable()};
+    editor.addEventListener('blur',()=>finish(true));editor.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();editor.blur()}else if(e.key==='Escape'){e.preventDefault();finish(false)}});if(isSelect)editor.addEventListener('change',()=>editor.blur());
+  }
+  function deleteOperator(id){const op=state.operators.find(x=>x.id===id);if(!op)return;if(confirm(`Excluir ${op.nome}?\n\nEsta ação altera imediatamente os indicadores.`)){commit(s=>{s.operators=s.operators.filter(x=>x.id!==id)},'Operador excluído.')}}
+
+  function renderNotes(){
+    els.notesList.replaceChildren(); setText(els.noteCount,`${state.notes.length} ${state.notes.length===1?'nota':'notas'}`);
+    if(!state.notes.length){const empty=document.createElement('div');empty.className='note-empty';empty.textContent='Nenhuma nota cadastrada.';els.notesList.append(empty);return}
+    [...state.notes].reverse().forEach(note=>{const card=document.createElement('article');card.className='note-card';const text=document.createElement('div');text.className='note-text';text.textContent=note.text;const meta=document.createElement('div');meta.className='note-meta';meta.textContent=new Date(note.createdAt).toLocaleString('pt-BR');const del=document.createElement('button');del.type='button';del.className='icon-btn delete note-delete';del.title='Excluir nota';del.textContent='×';del.addEventListener('click',()=>commit(s=>{s.notes=s.notes.filter(n=>n.id!==note.id)},'Nota excluída.'));card.append(text,meta,del);els.notesList.append(card)})
+  }
+  function addNote(){const text=els.noteText.value.trim();if(!text){showToast('Digite uma nota antes de adicionar.',true);els.noteText.focus();return}commit(s=>s.notes.push({id:uid('note'),text,createdAt:new Date().toISOString()}),'Nota adicionada.');els.noteText.value=''}
+
+  function openModal(){els.form.reset();els.newStatus.value=STATUSES[0];els.modal.classList.add('open');setTimeout(()=>els.newMatricula.focus(),0)}
+  function closeModal(){els.modal.classList.remove('open')}
+  function addOperatorFromForm(e){
+    e.preventDefault();const matricula=els.newMatricula.value.trim(),nome=els.newNome.value.trim(),local=els.newLocal.value,status=els.newStatus.value;
+    if(!matricula||!nome){showToast('Matrícula e nome são obrigatórios.',true);return}
+    if(state.operators.some(op=>op.matricula.toLocaleLowerCase('pt-BR')===matricula.toLocaleLowerCase('pt-BR'))&&!confirm(`A matrícula ${matricula} já existe. Deseja cadastrar mesmo assim?`))return;
+    commit(s=>s.operators.push({id:uid('op'),matricula,nome,local,status}),'Novo operador adicionado.');closeModal();
+  }
+
+  function csvCell(value){const text=String(value??'');return /[;"\n\r]/.test(text)?`"${text.replaceAll('"','""')}"`:text}
+  function toCsv(operators){const rows=[['Matrícula','Nome','Onde Treinar','Status'],...operators.map(op=>[op.matricula,op.nome,op.local,op.status])];return '\uFEFF'+rows.map(r=>r.map(csvCell).join(';')).join('\r\n')}
+  function downloadCsv(){
+    const csv=toCsv(state.operators),blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`treinamento_operadores_${new Date().toISOString().slice(0,10)}.csv`;document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);showToast('CSV exportado com sucesso.');
+  }
+  function resetDatabase(){if(!cloudReady){showToast('Faça login antes de alterar dados.',true);return;}if(!confirm('Restaurar os 22 operadores originais e apagar todas as notas?\n\nEsta ação não pode ser desfeita.'))return;commit(s=>{const fresh=freshState();s.operators=fresh.operators;s.notes=fresh.notes},'Base inicial restaurada.');filters={query:'',location:'',status:''};els.search.value='';els.locationFilter.value='';els.statusFilter.value='';renderAll()}
+  function downloadFile(name,content,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+  function exportBackup(){downloadFile(`backup_treinamento_operadores_${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({format:'treinamentoOperadores.backup.v1',exportedAt:new Date().toISOString(),data:state},null,2),'application/json');showToast('Backup integral salvo. Guarde o arquivo em local seguro.')}
+  async function importBackup(e){const f=e.target.files?.[0];e.target.value='';if(!f)return;try{const raw=JSON.parse(await f.text());const data=raw.data||raw;if(!Array.isArray(data.operators)||!Array.isArray(data.notes))throw Error('Formato de backup inválido');const normalized={operators:data.operators.map(normalizeOperator),notes:data.notes.map((n,i)=>({id:String(n.id||`note-${i}`),text:String(n.text||''),createdAt:String(n.createdAt||new Date().toISOString())}))};if(!confirm(`Importar ${normalized.operators.length} operadores e ${normalized.notes.length} notas? Isso substitui a base ${cloudMode?'compartilhada':'local'}.`))return;await commit(s=>{s.operators=normalized.operators;s.notes=normalized.notes},'Backup importado')}catch(err){showToast('Erro ao importar: '+err.message,true)}}
+  function setCloudStatus(msg){$('cloudStatus').textContent=msg}
+  function initClient(){if(typeof window.supabase==='undefined')throw Error('Biblioteca de sincronização indisponível. Verifique sua internet.');const url=$('supabaseUrl').value.trim().replace(/\/$/,'');const key=$('supabaseKey').value.trim();if(!/^https:\/\/[\w.-]+\.supabase\.co$/.test(url)||!key)throw Error('Preencha a URL Supabase válida e a chave pública.');cloudClient=window.supabase.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'treinamento-op-auth'}});localStorage.setItem(CONFIG_KEY,JSON.stringify({url,key}));return cloudClient}
+  async function configureCloud(){try{initClient();const {data:{session},error}=await cloudClient.auth.getSession();if(error)throw error;if(session){await fetchCloud(true)}else{cloudMode=false;cloudReady=false;setCloudStatus('Projeto configurado: faça login');showToast('Projeto configurado. Entre com sua conta.')}}catch(e){setCloudStatus('Erro de configuração');showToast(e.message,true)}}
+  async function loginCloud(){try{if(!cloudClient)initClient();const email=$('cloudEmail').value.trim();const password=$('cloudPassword').value;const {error}=await cloudClient.auth.signInWithPassword({email,password});if(error)throw error;$('cloudPassword').value='';await fetchCloud(true);showToast('Conectado à base compartilhada')}catch(e){showToast('Login falhou: '+e.message,true)}}
+  async function logoutCloud(){if(cloudClient)await cloudClient.auth.signOut();cloudReady=false;cloudMode=false;cloudVersion=null;cloudHasRow=false;state={operators:[],notes:[]};renderAll();clearInterval(cloudTimer);cloudTimer=null;setCloudStatus('Modo local: não compartilhado');showToast('Sessão encerrada. Agora as alterações são locais.')}
+  function validateCloudData(value){if(!value||!Array.isArray(value.operators)||!Array.isArray(value.notes))throw Error('Dados da nuvem estão em formato inválido');return {operators:value.operators.map(normalizeOperator),notes:value.notes.map((n,i)=>({id:String(n?.id||`note-${i}`),text:String(n?.text||''),createdAt:String(n?.createdAt||new Date().toISOString())}))}}
+  async function fetchCloud(announce=true){if(!cloudClient)throw Error('Configure o projeto');const {data:{user},error:authErr}=await cloudClient.auth.getUser();if(authErr||!user){cloudReady=false;throw Error('Faça login novamente')}
+    const {data,error}=await cloudClient.from('operator_dashboard').select('id,version,data').eq('id',1).maybeSingle();if(error){cloudReady=false;throw Error(error.message)}
+    cloudMode=true;cloudReady=true;cloudHasRow=!!data;cloudVersion=data?.version??null;
+    if(data){state=validateCloudData(data.data);saveState();renderAll();setCloudStatus('Conectado • versão '+cloudVersion+' • '+user.email)}
+    else setCloudStatus('Conectado • base vazia • '+user.email+' • faça a migração');
+    if(!cloudTimer)cloudTimer=setInterval(()=>{if(!cloudBusy&&cloudReady)pollCloud().catch(err=>{cloudReady=false;setCloudStatus('Conexão interrompida: edição bloqueada');console.warn(err)})},15000);
+    if(announce)showToast(data?'Dados compartilhados atualizados.':'Base ainda vazia. Faça backup e migre os dados locais.');
+  }
+  async function pollCloud(){const {data,error}=await cloudClient.from('operator_dashboard').select('id,version,data').eq('id',1).maybeSingle();if(error)throw error;if(!data){cloudHasRow=false;cloudVersion=null;return}if(cloudVersion!==data.version){state=validateCloudData(data.data);cloudVersion=data.version;cloudHasRow=true;saveState();renderAll();setCloudStatus('Conectado • versão '+cloudVersion+' • atualizado');showToast('Atualização recebida de outro usuário.')}}
+  async function saveCloud(next){if(!cloudClient||!cloudReady)throw Error('Base compartilhada desconectada');if(!cloudHasRow)throw Error('Base compartilhada ainda não iniciada. Use Migrar dados.');const {data,error}=await cloudClient.from('operator_dashboard').update({data:next,version:cloudVersion+1,updated_at:new Date().toISOString()}).eq('id',1).eq('version',cloudVersion).select('version').maybeSingle();if(error)throw Error(error.message);if(!data)throw Error('Outro usuário alterou os dados antes de você. Dados atualizados; refaça a alteração.');cloudVersion=data.version;setCloudStatus('Conectado • versão '+cloudVersion)}
+  async function uploadCloud(){if(!cloudClient||!cloudReady){showToast('Conecte e entre antes de migrar.',true);return}if(cloudBusy)return;const copy=structuredCloneSafe(pendingMigrationSnapshot);if(!confirm('ATENÇÃO: substitui TODOS os operadores e notas compartilhados pelos dados LOCAIS capturados quando este arquivo foi aberto. Faça um backup JSON do arquivo ORIGINAL antes. Continuar?'))return;cloudBusy=true;try{if(cloudHasRow){await saveCloud(copy)}else{const {data,error}=await cloudClient.from('operator_dashboard').insert({id:1,data:copy,version:1}).select('version').single();if(error)throw Error(error.message);cloudHasRow=true;cloudVersion=data.version}setCloudStatus('Conectado • versão '+cloudVersion);saveState();showToast('Migração concluída. Dados disponíveis aos usuários autorizados.')}catch(e){showToast('Migração não concluída: '+e.message,true);await fetchCloud(false).catch(()=>{})}finally{cloudBusy=false}}
+  function showToast(message,isError=false){clearTimeout(toastTimer);els.toast.textContent=message;els.toast.className=`toast show${isError?' error':''}`;toastTimer=setTimeout(()=>els.toast.className='toast',2600)}
+
+  function populateControls(){
+    LOCATIONS.forEach(v=>{els.locationFilter.append(option(v));els.newLocal.append(option(v))}); STATUSES.forEach(v=>{els.statusFilter.append(option(v));els.newStatus.append(option(v))});
+    const label=new Intl.DateTimeFormat('pt-BR',{month:'long',year:'numeric'}).format(new Date());$('monthLabel').textContent=label.charAt(0).toUpperCase()+label.slice(1);
+  }
+  $('addOperatorBtn').addEventListener('click',openModal);$('cancelModalBtn').addEventListener('click',closeModal);els.modal.addEventListener('click',e=>{if(e.target===els.modal)closeModal()});els.form.addEventListener('submit',addOperatorFromForm);
+  $('backupBtn').addEventListener('click',exportBackup);$('importBtn').addEventListener('click',()=>$('importFile').click());$('importFile').addEventListener('change',importBackup);$('cloudConfigure').addEventListener('click',configureCloud);$('cloudLogin').addEventListener('click',loginCloud);$('cloudLogout').addEventListener('click',logoutCloud);$('cloudDownload').addEventListener('click',()=>fetchCloud(true).catch(e=>showToast(e.message,true)));$('cloudUpload').addEventListener('click',uploadCloud);
+  $('exportCsvBtn').addEventListener('click',downloadCsv);$('resetBtn').addEventListener('click',resetDatabase);$('addNoteBtn').addEventListener('click',addNote);els.noteText.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')addNote()});
+  els.search.addEventListener('input',()=>{filters.query=els.search.value;renderTable()});els.locationFilter.addEventListener('change',()=>{filters.location=els.locationFilter.value;renderTable()});els.statusFilter.addEventListener('change',()=>{filters.status=els.statusFilter.value;renderTable()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&els.modal.classList.contains('open'))closeModal()});
+
+  populateControls();
+  renderAll();
+
+  if(!$('supabaseUrl').value){ $('supabaseUrl').value='https://vubxusuolbqxkkcqfvks.supabase.co'; $('supabaseKey').value='sb_publishable__HmA-9LQNsxQPI7Fcti1Pg_n-804jrb'; }
+  try{const config=JSON.parse(localStorage.getItem(CONFIG_KEY)||'null');if(config){$('supabaseUrl').value=config.url||'';$('supabaseKey').value=config.key||'';configureCloud()}else{configureCloud()}}catch(e){console.warn(e)}
+})();
+</script>
+</body>
+</html>
