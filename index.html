@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
+<script>if(/(?:access_token=|type=(?:invite|recovery|signup)|error=|\bcode=)/.test(location.hash+" "+location.search)){location.replace("./senha.html"+location.search+location.hash)}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Treinamento de Operadores - Dashboard</title>
@@ -164,7 +165,7 @@
   </main>
   <section class="panel" style="margin-top:12px" id="accessPanel"><div class="panel-title"><h2>Consulta compartilhada</h2><span class="hint" id="connectionStatus">Aguardando conexão</span></div>
 <div class="toolbar" style="border:0;background:transparent"><input class="input" id="projectUrl" placeholder="URL do projeto Supabase" autocomplete="off"><input class="input" id="publicKey" placeholder="Chave pública (publishable / anon)" autocomplete="off"><button class="btn secondary" id="connectBtn">Configurar conexão</button></div>
-<div class="toolbar" style="border:0;background:transparent"><input class="input" id="loginEmail" type="email" placeholder="E-mail autorizado" autocomplete="username"><input class="input" id="loginPassword" type="password" placeholder="Senha" autocomplete="current-password"><button class="btn good" id="loginBtn">Entrar para consultar</button><button class="btn secondary" id="logoutBtn">Sair</button><button class="btn" id="refreshBtn">Atualizar</button></div>
+<div class="toolbar" style="border:0;background:transparent"><input class="input" id="loginEmail" type="email" placeholder="E-mail autorizado" autocomplete="username"><input class="input" id="loginPassword" type="password" placeholder="Senha" autocomplete="current-password"><button class="btn good" id="loginBtn">Entrar para consultar</button><a class="btn secondary" style="text-decoration:none" href="./senha.html">Criar ou recuperar senha</a><button class="btn secondary" id="logoutBtn">Sair</button><button class="btn" id="refreshBtn">Atualizar</button></div>
 <p style="color:var(--muted);font-size:12px;margin-bottom:0">Leitura exclusiva. Não é possível incluir, excluir ou alterar registros nesta página. Somente usuários autorizados podem visualizar os dados.</p></section>
   <footer class="footer"><span>Consulta segura • somente contas autorizadas • requer internet</span><span id="visibleCount">22 de 22 operadores exibidos</span></footer>
 </div>
