@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Definir senha | Treinamento de Operadores</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{background:linear-gradient(130deg,#07111f,#123755);font:16px system-ui,Arial,sans-serif;color:#eff6ff;min-height:100vh;display:grid;place-items:center;margin:0;padding:20px}
+main{width:min(450px,100%);background:#102844;border:1px solid #315c82;border-radius:17px;padding:28px;box-shadow:0 12px 36px #0005}
+h1{font-size:24px;margin:0 0 10px}p{color:#b9d1e2;line-height:1.5}label{display:block;margin:18px 0 7px;font-weight:650;font-size:14px}
+input{width:100%;padding:12px;border-radius:9px;border:1px solid #4580a9;background:#07182a;color:#fff;font:inherit}
+button{width:100%;margin-top:18px;border:1px solid #428b8e;background:#196353;color:white;border-radius:9px;padding:12px;font-weight:800;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}a{color:#86c8f4}.error{color:#ffb0bc}.ok{color:#a8f2d0}#msg{min-height:22px}#passwordForm{display:none}
+</style></head><body><main>
+<h1>Acesso ao dashboard</h1>
+<p id="explain">Para criar ou recuperar sua senha, informe o e-mail para receber um link seguro.</p>
+<form id="emailForm"><label for="email">E-mail cadastrado</label><input id="email" type="email" autocomplete="email" required>
+<button type="submit" id="send">Enviar link de definição de senha</button></form>
+<form id="passwordForm"><label for="password">Nova senha (mínimo de 12 caracteres)</label><input id="password" type="password" minlength="12" autocomplete="new-password" required>
+<label for="confirm">Confirmar nova senha</label><input id="confirm" type="password" minlength="12" autocomplete="new-password" required>
+<button type="submit" id="save">Salvar nova senha</button></form>
+<p id="msg" role="status" aria-live="polite"></p>
+<p><a href="./">Voltar ao dashboard de consulta</a></p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/dist/umd/supabase.js"></script>
+<script>
+(async()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const feedback=(s,error=false)=>{$('msg').textContent=s;$('msg').className=error?'error':'ok'};
+if(!window.supabase){feedback('Não foi possível carregar a autenticação. Verifique a conexão.',true);return}
+const client=window.supabase.createClient('https://vubxusuolbqxkkcqfvks.supabase.co','sb_publishable__HmA-9LQNsxQPI7Fcti1Pg_n-804jrb',{auth:{persistSession:true,detectSessionInUrl:true,storageKey:'consulta-operadores-auth'}});
+const hash=new URLSearchParams(location.hash.slice(1));const search=new URLSearchParams(location.search);
+const hasToken=hash.has('access_token')||search.has('code')||hash.has('error');
+if(hash.has('error')||search.has('error')){
+ feedback('O link é inválido ou expirou. Solicite um novo link abaixo.',true);
+ history.replaceState(null,'',location.pathname);
+}
+else if(hasToken){
+ const {data,error}=await client.auth.getSession();
+ if(error||!data.session){feedback('O link expirou ou não pôde ser validado. Solicite outro abaixo.',true)}
+ else{
+  $('emailForm').style.display='none';$('passwordForm').style.display='block';
+  $('explain').textContent='Seu link foi validado. Defina uma senha pessoal para acessar o dashboard.';
+  feedback('Link validado.');
+ }
+ history.replaceState(null,'',location.pathname);
+}
+$('emailForm').addEventListener('submit',async e=>{
+ e.preventDefault();$('send').disabled=true;feedback('Enviando...');
+ try{
+ const {error}=await client.auth.resetPasswordForEmail($('email').value.trim(),{redirectTo:'https://engopegpt-bot.github.io/dashboard-treinamento-operadores/'});
+ if(error)throw error;
+ feedback('Se este e-mail estiver cadastrado, enviaremos um link. Verifique também o spam.');
+ }catch(e){feedback('Não foi possível solicitar o link: '+e.message,true)}
+ finally{$('send').disabled=false}
+});
+$('passwordForm').addEventListener('submit',async e=>{
+ e.preventDefault();if($('password').value!==$('confirm').value){feedback('As senhas não coincidem.',true);return}
+ $('save').disabled=true;feedback('Salvando...');
+ try{
+ const {error}=await client.auth.updateUser({password:$('password').value});if(error)throw error;
+ $('passwordForm').style.display='none';feedback('Senha cadastrada! Volte ao dashboard e entre com seu e-mail e senha.');
+ await client.auth.signOut();
+ }catch(e){feedback('Erro ao salvar: '+e.message,true)}finally{$('save').disabled=false}
+});
+})();
+</script></body></html>
